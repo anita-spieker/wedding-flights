@@ -334,7 +334,7 @@ const jsonData = [
                 "arrival_date": "22/09/25",
                 "departure_time": "11:00",
                 "departure": "PTY",
-                "destination": "BOG",
+                "arrival": "BOG",
                 "arrival_time": "12:35"
             },
             {
@@ -344,7 +344,7 @@ const jsonData = [
                 "arrival_date": "23/09/25",
                 "departure_time": "16:35",
                 "departure": "BOG",
-                "destination": "GRU",
+                "arrival": "GRU",
                 "arrival_time": "00:40"
             }
         ],
