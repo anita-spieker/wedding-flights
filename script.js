@@ -319,6 +319,36 @@ const jsonData = [
         ],
         "arrivals": [],
         "departures": []
+    },
+    {
+        "id": "c2d3e4f5-g6h7-8901-2345-678901234578",
+        "people": [
+            "Susanna",
+            "Freddie"
+        ],
+        "arrivals": [
+            {
+                "airline": "Avianca",
+                "flight_number": "AV8383",
+                "departure_date": "22/09/25",
+                "arrival_date": "22/09/25",
+                "departure_time": "11:00",
+                "departure": "PTY",
+                "destination": "BOG",
+                "arrival_time": "12:35"
+            },
+            {
+                "airline": "Avianca",
+                "flight_number": "AV249",
+                "departure_date": "22/09/25",
+                "arrival_date": "23/09/25",
+                "departure_time": "16:35",
+                "departure": "BOG",
+                "destination": "GRU",
+                "arrival_time": "00:40"
+            }
+        ],
+        "departures": []
     }
 ];
 
