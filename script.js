@@ -23,8 +23,8 @@ const jsonData = [
             {
                 "airline": "Air Canada",
                 "flight_number": "AC097",
-                "departure_date": "02/10/02",
-                "arrival_date": "03/10/02",
+                "departure_date": "02/10/25",
+                "arrival_date": "03/10/25",
                 "departure": "GRU",
                 "departure_time": "21:00",
                 "arrival": "YUL",
@@ -54,8 +54,8 @@ const jsonData = [
             {
                 "airline": "Latam",
                 "flight_number": "LA8096",
-                "departure_date": "29/09/02",
-                "arrival_date": "29/09/02",
+                "departure_date": "29/09/25",
+                "arrival_date": "29/09/25",
                 "departure": "GRU",
                 "departure_time": "16:10",
                 "arrival": "SCL",
