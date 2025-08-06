@@ -352,60 +352,74 @@ const jsonData = [
     }
 ];
 
-// Function to parse the date and time into a full Date object
+
 function parseDateTime(dateStr, timeStr) {
     const [day, month, year] = dateStr.split('/').map(num => parseInt(num, 10));
     const [hours, minutes] = timeStr.split(':').map(num => parseInt(num, 10));
 
-    // Note: JavaScript months are 0-indexed, so subtract 1 from the month
-    return new Date(2000 + year, month - 1, day, hours, minutes);  // Assume 2000 for the century (dates like "23/09/25" should work)
+
+    return new Date(2000 + year, month - 1, day, hours, minutes);
 }
 
-// Function to sort flights by arrival or departure time
+function getEarliestDeparture(flight) {
+    return flight.departures.reduce((earliest, current) => {
+        const currentDate = parseDateTime(current.departure_date, current.departure_time);
+        if (!earliest) return currentDate;
+        return currentDate < earliest ? currentDate : earliest;
+    }, null);
+}
+
+function getEarliestArrival(flight) {
+    return flight.arrivals.reduce((earliest, current) => {
+        const currentDate = parseDateTime(current.arrival_date, current.arrival_time);
+        if (!earliest) return currentDate;
+        return currentDate < earliest ? currentDate : earliest;
+    }, null);
+}
+
 function sortFlights(flights, sortBy) {
     return flights.sort((a, b) => {
-        // Get the relevant date and time based on the sortBy parameter
-        let dateA, dateB;
-        
-        if (sortBy === 'arrival' && a.arrivals.length > 0 && b.arrivals.length > 0) {
-            dateA = parseDateTime(a.arrivals[0].arrival_date, a.arrivals[0].arrival_time);
-            dateB = parseDateTime(b.arrivals[0].arrival_date, b.arrivals[0].arrival_time);
-        } else if (sortBy === 'departure' && a.departures.length > 0 && b.departures.length > 0) {
-            dateA = parseDateTime(a.departures[0].departure_date, a.departures[0].departure_time);
-            dateB = parseDateTime(b.departures[0].departure_date, b.departures[0].departure_time);
+        let dateA = null, dateB = null;
+
+        if (sortBy === 'arrival') {
+            dateA = getEarliestArrival(a);
+            dateB = getEarliestArrival(b);
+        } else if (sortBy === 'departure') {
+            dateA = getEarliestDeparture(a);
+            dateB = getEarliestDeparture(b);
         }
 
         if (dateA && dateB) {
-            return dateA - dateB;  // Compare the Date objects
+            return dateA - dateB;
         }
 
-        return 0;  // In case of no valid times to compare, keep the current order
+        return 0;
     });
 }
 
 
 
-// Function to render flights
+
 function renderFlights(flights) {
     const container = document.getElementById('flight-container');
-    container.innerHTML = ''; // Clear previous content
+    container.innerHTML = '';
 
     flights.forEach(flight => {
         const flightCard = document.createElement('div');
         flightCard.classList.add('card', 'mb-3');
-        
-        // Flight title is the people
+
+
         const title = document.createElement('div');
         title.classList.add('card-header');
         title.innerText = flight.people.join(', ');
 
         flightCard.appendChild(title);
 
-        // Flights grouping (arrivals and departures)
+
         const flightsContent = document.createElement('div');
         flightsContent.classList.add('arrivals-departures', 'd-flex', 'gap-3');
 
-        // Arrivals section
+
         const arrivalsDiv = document.createElement('div');
         arrivalsDiv.classList.add('arrivals', 'flex-grow-1');
         flight.arrivals.forEach(arrival => {
@@ -426,7 +440,7 @@ function renderFlights(flights) {
             arrivalsDiv.appendChild(arrivalCard);
         });
 
-        // Departures section
+
         const departuresDiv = document.createElement('div');
         departuresDiv.classList.add('departures', 'flex-grow-1');
         flight.departures.forEach(departure => {
@@ -447,7 +461,7 @@ function renderFlights(flights) {
             departuresDiv.appendChild(departureCard);
         });
 
-        // Append arrivals and departures to the flight card
+
         flightsContent.appendChild(arrivalsDiv);
         flightsContent.appendChild(departuresDiv);
 
@@ -459,25 +473,25 @@ function renderFlights(flights) {
 
 
 
-// Function to filter flights by search query
+
 function filterFlights(flights, searchQuery) {
     return flights.filter(flight => flight.people.some(person => person.toLowerCase().includes(searchQuery.toLowerCase())));
 }
 
-// Event listener for sorting
+
 document.getElementById('sort-by').addEventListener('change', (event) => {
     const sortBy = event.target.value;
     const sortedFlights = sortFlights(jsonData, sortBy);
-    renderFlights(sortedFlights); // Call renderFlights after sorting
+    renderFlights(sortedFlights);
 });
 
-// Event listener for search
+
 document.getElementById('search').addEventListener('input', (event) => {
     const searchQuery = event.target.value;
     const filteredFlights = filterFlights(jsonData, searchQuery);
     renderFlights(filteredFlights);
 });
 
-// Initial render
+
 const initiallySortedFlights = sortFlights(jsonData, 'arrival');
 renderFlights(initiallySortedFlights);
