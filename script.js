@@ -50,6 +50,20 @@ function getLatestArrival(flight) {
     }, null);
 }
 
+function stripTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getEarliestDepartureDay(flight) {
+    const earliestDeparture = getEarliestDeparture(flight);
+    return earliestDeparture ? stripTime(earliestDeparture) : null;
+}
+
+function getLatestArrivalDay(flight) {
+    const latestArrival = getLatestArrival(flight);
+    return latestArrival ? stripTime(latestArrival) : null;
+}
+
 function sortFlights(flights, sortBy) {
     return flights.sort((a, b) => {
         let dateA = null, dateB = null;
@@ -60,6 +74,12 @@ function sortFlights(flights, sortBy) {
         } else if (sortBy === 'departure') {
             dateA = getEarliestDeparture(a);
             dateB = getEarliestDeparture(b);
+        } else if (sortBy === 'arrival-day') {
+            dateA = getLatestArrivalDay(a);
+            dateB = getLatestArrivalDay(b);
+        } else if (sortBy === 'departure-day') {
+            dateA = getEarliestDepartureDay(a);
+            dateB = getEarliestDepartureDay(b);
         }
 
         if (dateA && dateB) {
@@ -69,8 +89,6 @@ function sortFlights(flights, sortBy) {
         return 0;
     });
 }
-
-
 
 
 function renderFlights(flights) {
