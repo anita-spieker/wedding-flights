@@ -42,11 +42,11 @@ function getEarliestDeparture(flight) {
     }, null);
 }
 
-function getEarliestArrival(flight) {
-    return flight.arrivals.reduce((earliest, current) => {
+function getLatestArrival(flight) {
+    return flight.arrivals.reduce((latest, current) => {
         const currentDate = parseDateTime(current.arrival_date, current.arrival_time);
-        if (!earliest) return currentDate;
-        return currentDate < earliest ? currentDate : earliest;
+        if (!latest) return currentDate;
+        return currentDate > latest ? currentDate : latest;
     }, null);
 }
 
@@ -55,8 +55,8 @@ function sortFlights(flights, sortBy) {
         let dateA = null, dateB = null;
 
         if (sortBy === 'arrival') {
-            dateA = getEarliestArrival(a);
-            dateB = getEarliestArrival(b);
+            dateA = getLatestArrival(a);
+            dateB = getLatestArrival(b);
         } else if (sortBy === 'departure') {
             dateA = getEarliestDeparture(a);
             dateB = getEarliestDeparture(b);
