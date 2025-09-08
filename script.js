@@ -19,21 +19,32 @@ async function loadFlights() {
         const data = await response.json();
         jsonData = data.record; // JSONBin nests your data under 'record'
 
-        const initiallySortedFlights = sortFlights(jsonData, 'arrival');
-        renderFlights(initiallySortedFlights);
+        updateFlights(); // initial render
     } catch (error) {
         console.error('Failed to fetch flight data:', error);
     }
 }
 
+// ----------------- DATE HELPERS -----------------
 function parseDateTime(dateStr, timeStr) {
     const [day, month, year] = dateStr.split('/').map(num => parseInt(num, 10));
     const [hours, minutes] = timeStr.split(':').map(num => parseInt(num, 10));
-
-
     return new Date(2000 + year, month - 1, day, hours, minutes);
 }
 
+function stripTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function isSameDay(dateA, dateB) {
+    return (
+        dateA.getFullYear() === dateB.getFullYear() &&
+        dateA.getMonth() === dateB.getMonth() &&
+        dateA.getDate() === dateB.getDate()
+    );
+}
+
+// ----------------- ARRIVAL / DEPARTURE EXTRACTORS -----------------
 function getEarliestDeparture(flight) {
     return flight.departures.reduce((earliest, current) => {
         const currentDate = parseDateTime(current.departure_date, current.departure_time);
@@ -50,10 +61,6 @@ function getLatestArrival(flight) {
     }, null);
 }
 
-function stripTime(date) {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
 function getEarliestDepartureDay(flight) {
     const earliestDeparture = getEarliestDeparture(flight);
     return earliestDeparture ? stripTime(earliestDeparture) : null;
@@ -64,6 +71,7 @@ function getLatestArrivalDay(flight) {
     return latestArrival ? stripTime(latestArrival) : null;
 }
 
+// ----------------- SORTING -----------------
 function sortFlights(flights, sortBy) {
     return flights.sort((a, b) => {
         let dateA = null, dateB = null;
@@ -74,12 +82,6 @@ function sortFlights(flights, sortBy) {
         } else if (sortBy === 'departure') {
             dateA = getEarliestDeparture(a);
             dateB = getEarliestDeparture(b);
-        } else if (sortBy === 'arrival-day') {
-            dateA = getLatestArrivalDay(a);
-            dateB = getLatestArrivalDay(b);
-        } else if (sortBy === 'departure-day') {
-            dateA = getEarliestDepartureDay(a);
-            dateB = getEarliestDepartureDay(b);
         }
 
         if (dateA && dateB) {
@@ -90,7 +92,34 @@ function sortFlights(flights, sortBy) {
     });
 }
 
+// ----------------- FILTERS -----------------
+function filterFlights(flights, searchQuery) {
+    if (!searchQuery) return flights;
+    return flights.filter(flight =>
+        flight.people.some(person =>
+            person.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    );
+}
 
+function filterFlightsByDay(flights, selectedDate, sortBy) {
+    if (!selectedDate) return flights;
+
+    const targetDay = stripTime(new Date(selectedDate));
+
+    return flights.filter(flight => {
+        if (sortBy === 'arrival') {
+            const latestArrival = getLatestArrivalDay(flight);
+            return latestArrival && isSameDay(latestArrival, targetDay);
+        } else if (sortBy === 'departure') {
+            const earliestDeparture = getEarliestDepartureDay(flight);
+            return earliestDeparture && isSameDay(earliestDeparture, targetDay);
+        }
+        return true;
+    });
+}
+
+// ----------------- RENDER -----------------
 function renderFlights(flights) {
     const container = document.getElementById('flight-container');
     container.innerHTML = '';
@@ -99,23 +128,21 @@ function renderFlights(flights) {
         const flightCard = document.createElement('div');
         flightCard.classList.add('card', 'mb-3');
 
-
         const title = document.createElement('div');
         title.classList.add('card-header');
         title.innerText = flight.people.join(', ');
-
         flightCard.appendChild(title);
-
 
         const flightsContent = document.createElement('div');
         flightsContent.classList.add('arrivals-departures', 'd-flex', 'gap-3');
 
-
+        // Arrivals
         const arrivalsDiv = document.createElement('div');
         arrivalsDiv.classList.add('arrivals', 'flex-grow-1');
         flight.arrivals.forEach(arrival => {
             const arrivalCard = document.createElement('div');
             arrivalCard.classList.add('card');
+
             const arrivalHeader = document.createElement('div');
             arrivalHeader.classList.add('card-header');
             arrivalHeader.innerText = `${arrival.departure} - ${arrival.arrival} ( ${arrival.flight_number} )`;
@@ -131,12 +158,13 @@ function renderFlights(flights) {
             arrivalsDiv.appendChild(arrivalCard);
         });
 
-
+        // Departures
         const departuresDiv = document.createElement('div');
         departuresDiv.classList.add('departures', 'flex-grow-1');
         flight.departures.forEach(departure => {
             const departureCard = document.createElement('div');
             departureCard.classList.add('card');
+
             const departureHeader = document.createElement('div');
             departureHeader.classList.add('card-header');
             departureHeader.innerText = `${departure.departure} - ${departure.arrival} ( ${departure.flight_number} )`;
@@ -152,37 +180,31 @@ function renderFlights(flights) {
             departuresDiv.appendChild(departureCard);
         });
 
-
         flightsContent.appendChild(arrivalsDiv);
         flightsContent.appendChild(departuresDiv);
-
         flightCard.appendChild(flightsContent);
+
         container.appendChild(flightCard);
     });
 }
 
+// ----------------- PIPELINE -----------------
+function updateFlights() {
+    const sortBy = document.getElementById('sort-by').value;
+    const searchQuery = document.getElementById('search').value;
+    const filterDate = document.getElementById('filter-date').value;
 
+    let flights = sortFlights(jsonData, sortBy);
+    flights = filterFlights(flights, searchQuery);
+    flights = filterFlightsByDay(flights, filterDate, sortBy);
 
-
-
-function filterFlights(flights, searchQuery) {
-    return flights.filter(flight => flight.people.some(person => person.toLowerCase().includes(searchQuery.toLowerCase())));
+    renderFlights(flights);
 }
 
+// ----------------- EVENT LISTENERS -----------------
+document.getElementById('sort-by').addEventListener('change', updateFlights);
+document.getElementById('search').addEventListener('input', updateFlights);
+document.getElementById('filter-date').addEventListener('change', updateFlights);
 
-document.getElementById('sort-by').addEventListener('change', (event) => {
-    const sortBy = event.target.value;
-    const sortedFlights = sortFlights(jsonData, sortBy);
-    renderFlights(sortedFlights);
-});
-
-
-document.getElementById('search').addEventListener('input', (event) => {
-    const searchQuery = event.target.value;
-    const filteredFlights = filterFlights(jsonData, searchQuery);
-    renderFlights(filteredFlights);
-});
-
-
-
+// ----------------- INIT -----------------
 loadFlights();
