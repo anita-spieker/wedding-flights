@@ -15,17 +15,18 @@
 
     <main>
         <div id="filters" class="filters">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between gap-2">
                 <!-- Search by Person -->
                 <input type="text" id="search" class="form-control" placeholder="Search by person..." />
-                
+        
                 <!-- Sort By -->
                 <select id="sort-by" class="form-select">
                     <option value="arrival">Sort by Arrival</option>
                     <option value="departure">Sort by Departure</option>
-                    <option value="arrival-day">Arrival Day</option>
-                    <option value="departure-day">Departure Day</option>                    
                 </select>
+        
+                <!-- Filter by Day -->
+                <input type="date" id="filter-date" class="form-control" />
             </div>
         </div>
 
