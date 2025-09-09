@@ -212,11 +212,21 @@ function updateFlights() {
     renderFlights(flights);
 }
 
+// ----------------- CLEAR FILTERS -----------------
+function clearFilters() {
+    document.getElementById('sort-by').value = 'arrival';
+    document.getElementById('search').value = '';
+    document.getElementById('filter-arrival-date').value = '';
+    document.getElementById('filter-departure-date').value = '';
+    updateFlights();
+}
+
 // ----------------- EVENT LISTENERS -----------------
 document.getElementById('sort-by').addEventListener('change', updateFlights);
 document.getElementById('search').addEventListener('input', updateFlights);
 document.getElementById('filter-arrival-date').addEventListener('change', updateFlights);
 document.getElementById('filter-departure-date').addEventListener('change', updateFlights);
+document.getElementById('clear-filters').addEventListener('click', clearFilters);
 
 // ----------------- INIT -----------------
 loadFlights();
