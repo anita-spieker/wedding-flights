@@ -44,10 +44,10 @@ function isSameDay(dateA, dateB) {
     );
 }
 
-// FIX: Parse input date correctly without timezone shift
+// Parse input date correctly without timezone shift
 function parseDateFromInput(dateStr) {
     const [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
-    return new Date(year, month - 1, day); // local midnight, no UTC conversion
+    return new Date(year, month - 1, day); // local midnight
 }
 
 // ----------------- ARRIVAL / DEPARTURE EXTRACTORS -----------------
@@ -99,7 +99,7 @@ function sortFlights(flights, sortBy) {
 }
 
 // ----------------- FILTERS -----------------
-function filterFlights(flights, searchQuery) {
+function filterFlightsBySearch(flights, searchQuery) {
     if (!searchQuery) return flights;
     return flights.filter(flight =>
         flight.people.some(person =>
@@ -108,20 +108,23 @@ function filterFlights(flights, searchQuery) {
     );
 }
 
-function filterFlightsByDay(flights, selectedDate, sortBy) {
+function filterFlightsByArrivalDate(flights, selectedDate) {
     if (!selectedDate) return flights;
 
     const targetDay = parseDateFromInput(selectedDate);
-
     return flights.filter(flight => {
-        if (sortBy === 'arrival') {
-            const latestArrival = getLatestArrivalDay(flight);
-            return latestArrival && isSameDay(latestArrival, targetDay);
-        } else if (sortBy === 'departure') {
-            const earliestDeparture = getEarliestDepartureDay(flight);
-            return earliestDeparture && isSameDay(earliestDeparture, targetDay);
-        }
-        return true;
+        const latestArrival = getLatestArrivalDay(flight);
+        return latestArrival && isSameDay(latestArrival, targetDay);
+    });
+}
+
+function filterFlightsByDepartureDate(flights, selectedDate) {
+    if (!selectedDate) return flights;
+
+    const targetDay = parseDateFromInput(selectedDate);
+    return flights.filter(flight => {
+        const earliestDeparture = getEarliestDepartureDay(flight);
+        return earliestDeparture && isSameDay(earliestDeparture, targetDay);
     });
 }
 
@@ -198,11 +201,13 @@ function renderFlights(flights) {
 function updateFlights() {
     const sortBy = document.getElementById('sort-by').value;
     const searchQuery = document.getElementById('search').value;
-    const filterDate = document.getElementById('filter-date').value;
+    const arrivalFilterDate = document.getElementById('filter-arrival-date').value;
+    const departureFilterDate = document.getElementById('filter-departure-date').value;
 
     let flights = sortFlights(jsonData, sortBy);
-    flights = filterFlights(flights, searchQuery);
-    flights = filterFlightsByDay(flights, filterDate, sortBy);
+    flights = filterFlightsBySearch(flights, searchQuery);
+    flights = filterFlightsByArrivalDate(flights, arrivalFilterDate);
+    flights = filterFlightsByDepartureDate(flights, departureFilterDate);
 
     renderFlights(flights);
 }
@@ -210,7 +215,8 @@ function updateFlights() {
 // ----------------- EVENT LISTENERS -----------------
 document.getElementById('sort-by').addEventListener('change', updateFlights);
 document.getElementById('search').addEventListener('input', updateFlights);
-document.getElementById('filter-date').addEventListener('change', updateFlights);
+document.getElementById('filter-arrival-date').addEventListener('change', updateFlights);
+document.getElementById('filter-departure-date').addEventListener('change', updateFlights);
 
 // ----------------- INIT -----------------
 loadFlights();
