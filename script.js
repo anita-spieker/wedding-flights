@@ -44,6 +44,12 @@ function isSameDay(dateA, dateB) {
     );
 }
 
+// FIX: Parse input date correctly without timezone shift
+function parseDateFromInput(dateStr) {
+    const [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
+    return new Date(year, month - 1, day); // local midnight, no UTC conversion
+}
+
 // ----------------- ARRIVAL / DEPARTURE EXTRACTORS -----------------
 function getEarliestDeparture(flight) {
     return flight.departures.reduce((earliest, current) => {
@@ -105,7 +111,7 @@ function filterFlights(flights, searchQuery) {
 function filterFlightsByDay(flights, selectedDate, sortBy) {
     if (!selectedDate) return flights;
 
-    const targetDay = stripTime(new Date(selectedDate));
+    const targetDay = parseDateFromInput(selectedDate);
 
     return flights.filter(flight => {
         if (sortBy === 'arrival') {
