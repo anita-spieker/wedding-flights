@@ -14,35 +14,40 @@
     </header>
 
     <main>
-        <div id="filters" class="filters">
-          <div class="d-flex flex-column gap-3">
+        <div id="filters" class="filters container px-3 my-3">
+          <div class="card shadow-sm p-3">
+            <h5 class="mb-3 text-center">Filters</h5>
+        
             <!-- Search + Sort -->
-            <div class="d-flex justify-content-between gap-2">
-              <input type="text" id="search" class="form-control" placeholder="Search by person..." />
-              <select id="sort-by" class="form-select">
-                <option value="arrival">Sort by Arrival</option>
-                <option value="departure">Sort by Departure</option>
-              </select>
+            <div class="row g-2 mb-3">
+              <div class="col-12 col-md-6">
+                <input type="text" id="search" class="form-control" placeholder="Search by person..." />
+              </div>
+              <div class="col-12 col-md-6">
+                <select id="sort-by" class="form-select">
+                  <option value="arrival">Sort by Arrival</option>
+                  <option value="departure">Sort by Departure</option>
+                </select>
+              </div>
             </div>
         
             <!-- Arrival Date Filter -->
-            <div>
-              <label for="filter-arrival-date" class="form-label fw-bold">Filter by Arrival Date</label>
+            <div class="mb-3">
+              <label for="filter-arrival-date" class="form-label fw-semibold">Filter by Arrival Date</label>
               <input type="date" id="filter-arrival-date" class="form-control" />
             </div>
         
             <!-- Departure Date Filter -->
-            <div>
-              <label for="filter-departure-date" class="form-label fw-bold">Filter by Departure Date</label>
+            <div class="mb-3">
+              <label for="filter-departure-date" class="form-label fw-semibold">Filter by Departure Date</label>
               <input type="date" id="filter-departure-date" class="form-control" />
             </div>
         
             <!-- Clear Filters Button -->
-            <div>
-              <button id="clear-filters" class="btn btn-secondary w-100">Clear Filters</button>
-            </div>
+            <button id="clear-filters" class="btn btn-outline-secondary w-100">Clear Filters</button>
           </div>
         </div>
+
 
         <div id="flight-container" class="container"></div>
     </main>
